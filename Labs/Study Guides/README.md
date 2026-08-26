@@ -1,9 +1,12 @@
-> Addition to the study guides.
+# [Addition to the study guides]
 
-## Finding a good F
+## CARD (COUNT) and $\gamma$ (GROUP BY) in Relational Algebra
 
 
-## Apply FDs to find keys
+## Finding a Good F
+
+
+## Apply FDs to Find Keys
 
 
 ## Tableau Algorithm for Lossless Join
