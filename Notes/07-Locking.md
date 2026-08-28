@@ -30,12 +30,49 @@ To increase concurrency, schedulers utilize different lock modes rather than for
 * **Exclusive Lock (`WLock`):** Required to write an element. If granted, no other transaction can hold any lock on that element.
 * **Update Lock (`ULock`):** Solves a specific deadlock scenario that occurs when two transactions hold a Shared Lock and both attempt to upgrade to an Exclusive Lock simultaneously. An Update Lock grants read privileges but acts as an "intent to write." Only one transaction can hold an Update Lock, which it later seamlessly upgrades to an Exclusive Lock without causing a deadlock.
 
+Compatibility matrix:
+
+| **Lock held in mode \ Lock requested** | **Share** | **eXclusive** | **Update** |
+|-----------------------|:---------:|:-------------:|:----------:|
+| **Share**             | yes       | no            | yes        |
+| **eXclusive**         | no        | no            | no         |
+| **Update**            | no        | no            | no         |
+
 ## 4. Multiple Granularity and Tree Protocols
 
 Databases manage locks at different hierarchical granularities: **Relations $\rightarrow$ Blocks $\rightarrow$ Tuples**.
 
 * Locking smaller units (tuples) yields more concurrency but increases the scheduler's tracking overhead.
 * To safely navigate this hierarchy, databases use **Intention Locks** (e.g., `IS`, `IX`, `SIX`). These act as "warning signs." A transaction must lock a parent node with an intention lock before it is allowed to place a lock on a child node.
+
+Compatibility matrix:
+
+| **Lock held in mode \ Lock requested** | **IS** | **IX** | **S** | **SIX** | **X** |
+|----------------------------------------|:------:|:------:|:-----:|:-------:|:-----:|
+| **IS**                                 | yes    | yes    | yes   | yes     | no    |
+| **IX**                                 | yes    | yes    | no    | no      | no    |
+| **S**                                  | yes    | no     | yes   | no      | no    |
+| **SIX**                                | yes    | no     | no    | no      | no    |
+| **X**                                  | no     | no     | no    | no      | no    |
+
+Parent-child rule:
+
+| Parent locked in | Child can be locked in by the same transaction |
+|------------------|-----------------------------------------------|
+| IS               | IS, S                                         |
+| IX               | IS, S, IX, X                                  |
+| S                | [S, IS not necessary]                         |
+| SIX              | X, IX, [SIX not necessary]                    |
+| X                | None                                          |
+
+**Rules:**
+
+1. Follow multiple granularity compatibility matrix
+2. Lock root of tree first in any mode
+3. Node Q can be locked by Ti in S or IS only if parent(Q) locked by Ti in IX or IS
+4. Node Q can be locked by Ti in X, SIX, IX only if parent(Q) locked by Ti in IX,SIX
+5. Ti is two-phase locking
+6. Ti can unlock node Q only if none of Q’s children are locked by Ti
 
 ### The Tree Protocol
 

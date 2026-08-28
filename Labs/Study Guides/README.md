@@ -1,7 +1,15 @@
 # [Addition to the study guides]
 
-## CARD (COUNT) and $\gamma$ (GROUP BY) in Relational Algebra
+## CARD (`COUNT`) and $\gamma$ (`GROUP BY`) in Relational Algebra
 
+In relational algebra, `COUNT` and `GROUP BY` are part of extended relational algebra, usually represented by the CARD function and grouping/aggregation operator $\gamma$.
+
+**Syntax:** $\gamma_{\text{grouping attrs; aggregation function}}(R)$.
+
+For example, if we have the relation `Employee(Eid, Name, Dept, Salary)`, we can count employees in each department:
+$$\gamma_{\text{Dept}, \text{CARD}(*)\rightarrow \text{NumEmployees}}(\text{Employee})$$
+
+`CARD(R)` is the cardinality of a relation R, i.e. number of tuples.
 
 ## Finding a Good F
 
